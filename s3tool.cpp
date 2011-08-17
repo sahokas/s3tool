@@ -201,10 +201,8 @@ int main(int argc, char * argv[])
         }
     }
     else {
-        // credentials not specified. Try pwd/.credentials
-        char pwd[PATH_MAX];
-        getcwd(pwd, PATH_MAX);
-        string localCred(string(pwd) + "/.s3_credentials");
+        // Credentials file not specified. Try from cwd and user home directory.
+        const string localCred(".s3_credentials");
         
         struct passwd * ent = getpwnam(getlogin());
         string userCred(string(ent->pw_dir) + "/.s3_credentials");
