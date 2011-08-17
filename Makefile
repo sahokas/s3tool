@@ -12,7 +12,7 @@ SOURCE = s3tool.cpp aws_s3.cpp aws_s3_misc.cpp
 INCLUDEDIRS =
 
 # defined HAVE_CONFIG_H to make curlpp work
-DEFINES = -DHAVE_CONFIG_H
+DEFINES = -DHAVE_CONFIG_H -DHAVE_STDINT_H
 
 LIBS = -lstdc++ -lssl -lcrypto -lcurlpp -lcurl
 

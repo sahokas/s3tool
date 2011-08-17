@@ -33,6 +33,10 @@
 #include <openssl/hmac.h>
 #include <openssl/bio.h>
 
+#ifdef HAVE_STDINT_H
+#include <stdint.h>
+#endif
+
 void InitMimeTypes();
 std::string MatchMimeType(const std::string & fname);
 
