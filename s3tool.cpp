@@ -31,13 +31,11 @@
 
 #include <exception>
 #include <stdexcept>
-
+#include <string>
 #include <set>
 
-#include <unistd.h>
-#include <pwd.h>
-
 using namespace std;
+
 // TODO: better error handling, retries, etc.
 // TODO: tests
 // TODO: documentation
@@ -45,6 +43,27 @@ using namespace std;
 // TODO: option for "don't copy metadata" for cp
 // TODO: force bucket delete...clear out contents, then delete
 // TODO: parse bucket name from path, allow BUCKET_NAME/OBJECT_KEY
+
+// TODO: Move platform-specific code into separate file(s)?
+#ifdef _WIN32
+#include <windows.h>
+#include <ShlObj.h>
+#define PATH_MAX MAX_PATH
+static const string PATH_SEP("\\");
+string getUserHomeDir()
+{
+    TCHAR szPath[MAX_PATH + 1] = { 0 };
+    if(SHGetSpecialFolderPath(NULL, szPath, CSIDL_PROFILE, FALSE))
+        return szPath;
+    else
+        return "";
+}
+#else
+#include <unistd.h>
+#include <pwd.h>
+static const string PATH_SEP("/");
+string getUserHomeDir() { return getpwnam(getlogin())->pw_dir; }
+#endif
 
 
 // Thrown due to connection failure, etc...operation was valid, may be retried.
@@ -203,9 +222,7 @@ int main(int argc, char * argv[])
     else {
         // Credentials file not specified. Try from cwd and user home directory.
         const string localCred(".s3_credentials");
-        
-        struct passwd * ent = getpwnam(getlogin());
-        string userCred(string(ent->pw_dir) + "/.s3_credentials");
+        const string userCred = getUserHomeDir() + PATH_SEP + ".s3_credentials";
         
         ifstream cred;
         
@@ -307,6 +324,10 @@ void LoadMetadata(AWS_IO & io, const CommandLine & cmdln)
 //MARK: s3install
 int Command_s3install(size_t wordc, CommandLine & cmds, AWS & aws)
 {
+#ifdef _WIN32
+    cerr << "install: not supported on this platform" << endl;
+    return 1;
+#else
     char pwd[PATH_MAX];
     getcwd(pwd, PATH_MAX);
     std::ostringstream cmdstrm;
@@ -326,6 +347,7 @@ int Command_s3install(size_t wordc, CommandLine & cmds, AWS & aws)
     cmdstrm << " && ln -s " << pwd << "/s3tool s3genidx";
     cout << cmdstrm.str() << endl;
     return system(cmdstrm.str().c_str());
+#endif
 }
 
 
