@@ -230,7 +230,8 @@ int main(int argc, char * argv[])
                 cout << "using credentials from " << credFile << ", name: " << name << endl;
         }
         else {
-            cerr << "Error: Could not load credentials file." << endl;
+            cerr << "Error: Could not load credentials file from:" << endl;
+            cerr << " * " << localCred << "\n * " << userCred << endl;
             cerr << "Make sure a .s3_credentials file is present in the home directory" << endl;
             cerr << "or in the current directory" << endl;
             cerr << "Credentials file should consist of three lines: key ID, secret key, and a name" << endl;
