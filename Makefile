@@ -14,10 +14,20 @@ INCLUDEDIRS =
 # defined HAVE_CONFIG_H to make curlpp work
 DEFINES = -DHAVE_CONFIG_H -DHAVE_STDINT_H
 
-LIBS = -lstdc++ -lssl -lcrypto -lcurlpp -lcurl
+LIBS = -lstdc++ -lssl -lcrypto -lcurl
 
 EXECNAME = s3tool
 
+# openssl and libcurl are typically present on a system, but this is
+# not the case for curlpp. try building using a local curlpp version
+# if LOCALCURLPP_DIR is found.
+LOCAL_CURLPP_DIR = curlpp-0.7.3
+ifeq (exists, $(shell test -d $(LOCAL_CURLPP_DIR) && echo exists))
+INCLUDEDIRS += -I$(LOCAL_CURLPP_DIR)/include
+LIBS += $(LOCAL_CURLPP_DIR)/src/curlpp/.libs/libcurlpp.a
+else
+LIBS += -lcurlpp
+endif
 
 CSOURCES = $(filter %.c,$(SOURCE))
 CPPSOURCES = $(filter %.cpp,$(SOURCE))
